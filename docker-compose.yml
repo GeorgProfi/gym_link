@@ -1,0 +1,40 @@
+version: "3.11"
+
+services:
+  db:
+    container_name: gymlink-db-local
+    image: postgres:alpine
+    ports:
+      - 5000:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - gymlink-data-dev:/var/lib/postgresql/data
+    networks:
+      - gymlink-db
+
+  backend:
+    container_name: gymlink-backend-local
+    user: 1000:1000
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000
+    networks:
+      - gymlink-network 
+      - gymlink-db  
+
+
+networks:
+  gymlink-network:
+    external: true
+  gymlink-db:
+volumes:
+  gymlink-data-dev:
+    driver: local

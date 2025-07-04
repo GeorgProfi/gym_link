@@ -1,0 +1,26 @@
+stages:
+  - test
+  - deploy
+
+test-build:
+  stage: test
+  image: docker
+  tags:
+    - build
+  script:
+    - docker build -t test .
+    - docker rmi test
+
+deploy-job:
+  stage: deploy
+  tags:
+    - build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: manual
+  before_script:
+    - cp ${PRODUCTION_ENV_FILE} .env
+  script:
+    - docker compose -f docker-compose.prod.yml up -d --build
+
+
